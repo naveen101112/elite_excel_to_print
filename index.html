@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <style>
+            .fs-12{
+                font-size: 12px;
+            }
+
+            .border-dashed {
+                border-bottom: double 2px;
+            }
+        </style>
+        <script src="./jQuery.js"></script>
+        <link href="./bootstrap min.css" rel="stylesheet">
+        <script src="./bootstrap min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    </head>
+    <body>
+        <input type="file" id="fileUpload" accept=".xls,.xlsx" /><br />
+        <button type="button" id="uploadExcel">Convert</button>
+        <pre id="jsonData"></pre>
+        <div id="content"></div>
+    </body>
+    <script>
+        var selectedFile;
+        var jsonData;
+        document
+        .getElementById("fileUpload")
+        .addEventListener("change", function (event) {
+            selectedFile = event.target.files[0];
+        });
+
+        document
+        .getElementById("uploadExcel")
+        .addEventListener("click", function () {
+            if (selectedFile) {
+                var fileReader = new FileReader();
+                fileReader.onload = function (event) {
+                    var data = event.target.result;
+
+                    var workbook = XLSX.read(data, {
+                    type: "binary",
+                    });
+
+                    let rowObject = XLSX.utils.sheet_to_row_object_array(
+                        workbook.Sheets["DECEMBER 20.12.23 MASTER"]
+                    );
+                    jsonData = rowObject;
+                    console.log(jsonData);
+                
+                    var map = new Map();
+                    var headings = ["S.No","DATE", "NAME OF THE PATIENT", "AGE", "SEX", "REF DOCTOR", "SCAN", " REF "];
+                    jsonData.forEach(r => {
+                        if(map.has(r['REF DOCTOR'])){
+                            let existArray = map.get(r['REF DOCTOR']);
+                            existArray.push(r);
+                            map.set(r['REF DOCTOR'], existArray);
+                        }else{
+                            map.set(r['REF DOCTOR'], [r]);
+                        }
+                    });
+                    var innerHtml = "";
+                    map.forEach((v,k) => {
+                        let doctor='';//`<h5>${k}</h5>`;
+                        innerHtml+=`<div>${doctor}
+                                    <table class="table table-striped fs-12">
+                                        ${constructHeader(headings)}
+                                        ${constructBody(headings, k, v)}
+                                    </table>
+                                    </div>`;
+                    });
+                    document.getElementById('content').innerHTML = innerHtml;
+                };
+                fileReader.readAsBinaryString(selectedFile);
+            }
+        });
+    </script>
+    <script>
+        function constructHeader(headArray){
+            let heads = "";
+            headArray.forEach(r => {
+                heads += `<th scope="col">${r}</th>`;
+            });
+            return `<thead>
+                        <tr>
+                            ${heads}
+                        </tr>
+                    </thead>`;
+        }
+        function constructBody(headings, doctor, data){
+            let body = "";
+            let total = 0;
+            data.forEach(r => {
+                body += '<tr>';
+                headings.forEach(h => {
+                    body += `<td>${r[h]}</td>`;
+                });
+                body += '</tr>';
+                total += isNaN(r[" REF "]) ? 0 : parseFloat(r[" REF "]);
+            });
+            body += `<tr class="border-dashed"><th colspan="7">${doctor} Total</th><th>${total}</th></tr><tr><th colspan="8"></th></tr>`;
+            return `<tbody>
+                        ${body}
+                    </tbody>`;
+        }
+    </script>
+</html>
