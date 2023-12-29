@@ -29,7 +29,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     </head>
     <body>
-        <div style="display: flex;">
+        <div style="display: flex;" id="upload">
             <input class="form-control" style="width: 20%;" type="file" id="fileUpload" accept=".xls,.xlsx" />
             &nbsp;&nbsp;
             <button type="button" id="uploadExcel" style="width: 20%;" class="btn btn-secondary col-md-2">Generate</button>
@@ -87,6 +87,7 @@
                     document.getElementById('content').innerHTML = innerHtml;
                 };
                 fileReader.readAsBinaryString(selectedFile);
+                document.getElementById('upload').style.display = 'none';
             }
         });
     </script>
