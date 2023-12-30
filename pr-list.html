@@ -1,0 +1,183 @@
+<html>
+    <head>
+        <style>
+            .heading{
+                width: 100% !important;
+                display: inline-block;
+                text-align: center;
+                font-weight: bold;
+                border-bottom: 1px solid;
+            }
+            .td-thin {
+                padding: unset !important;
+                padding: 2px !important;
+                text-align: center;
+            }
+            .th-thick{
+                padding: 0.5rem !important;
+            }
+            .fs-6p {
+                font-size: 12px;
+            }
+            .fs-12 {
+                font-size: 12px;
+            }
+            .custom-table {
+                width: 70% !important;
+            }
+            .border-dashed {
+                border-bottom: double 2px;
+            }
+            .content1{
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            @media print {
+                .custom-table {
+                    page-break-inside: avoid;
+                    page-break-after: always;
+                }
+                .custom-table table tr {
+                    page-break-inside: avoid;
+                }
+            }
+        </style>
+        <script src="./jQuery.js"></script>
+        <link href="./bootstrap min.css" rel="stylesheet">
+        <script src="./bootstrap min.js"></script>
+        <script src="./util.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    </head>
+    <body>
+        <div style="display: flex;" id="upload">
+            <input class="form-control" style="width: 20%;" type="file" id="fileUpload" accept=".xls,.xlsx" />
+            &nbsp;&nbsp;
+            <button type="button" id="uploadExcel" style="width: 20%;" class="btn btn-secondary col-md-2">Generate</button>
+        </div>
+        <div id="content" class="content"></div>
+    </body>
+    <script>
+        var selectedFile;
+        var jsonData;
+        document
+        .getElementById("fileUpload")
+        .addEventListener("change", function (event) {
+            selectedFile = event.target.files[0];
+        });
+
+        document
+        .getElementById("uploadExcel")
+        .addEventListener("click", function () {
+            if (selectedFile) {
+                var fileReader = new FileReader();
+                fileReader.onload = function (event) {
+                    var data = event.target.result;
+
+                    var workbook = XLSX.read(data, {
+                    type: "binary",
+                    });
+
+                    let rowObject = XLSX.utils.sheet_to_row_object_array(
+                        workbook.Sheets["MASTER"]
+                    );
+                    jsonData = rowObject;
+                
+                    var map = new Map();
+                    var headings = ["S No.", "DOCTOR", "TOTAL REF AMOUNT", "CASH/ONLINE", "CONTACT"];
+                    jsonData.forEach(r => {
+                        if(map.has(r['PR'].trim())){
+                            let existArray = map.get(r['PR'].trim());
+                            existArray.push(r);
+                            map.set(r['PR'].trim(), existArray);
+                        }else{
+                           map.set(r['PR'].trim(), [r]);
+                        }
+                    });
+
+                    var prMap = new Map();
+                    map.forEach((v,k) => {
+                        let doctorMap = new Map();
+                        v.forEach(r => {
+                            if(doctorMap.has(r['REF DOCTOR'].trim())){
+                                let existArray = doctorMap.get(r['REF DOCTOR'].trim());
+                                existArray.push(r);
+                                doctorMap.set(r['REF DOCTOR'].trim(), existArray);
+                            }else{
+                                doctorMap.set(r['REF DOCTOR'].trim(), [r]);
+                            }
+                        });
+
+                        let drRefTotalMap = new Map();
+                        doctorMap.forEach((dv, dk) => {
+                            let doctorTotal = 0;
+                            dv.forEach(dr => {
+                                if(dr[" REF "] ? (dr[" REF "]+'').endsWith("P") : false){
+                                    return;
+                                }
+                                doctorTotal += isNaN(dr[" REF "]) ? 0 : parseFloat(dr[" REF "]);
+                            });
+                            if(doctorTotal == 0) return;
+                            drRefTotalMap.set(dk, doctorTotal);
+                        });
+                        drRefTotalMap = [...drRefTotalMap.entries()].sort((a, b) => a[1]-b[1]);
+                        prMap.set(k, drRefTotalMap);
+                    });
+
+                    console.log(prMap);
+                    
+                    var innerHtml = "";
+                    prMap.forEach((v,k) => {
+                        let doctor=`<span class="heading">${k}</span>`;
+                        let body = constructBody(v);
+                        if(body){
+                            innerHtml+=`<div class="custom-table">${doctor}
+                                    <table class="table table-sm table-striped table-bordered fs-6p">
+                                        ${constructHeader(headings)}
+                                        ${body}
+                                    </table>
+                                    </div>`;
+                        }
+                    });
+                    document.getElementById('content').innerHTML = innerHtml;
+                };
+                fileReader.readAsBinaryString(selectedFile);
+                document.getElementById('upload').style.display = 'none';
+            }
+        });
+    </script>
+    <script>
+        function constructHeader(headArray){
+            let heads = "";
+            headArray.forEach(r => {
+                heads += `<th class="td-thin" scope="col">${r}</th>`;
+            });
+            return `<thead>
+                        <tr>
+                            ${heads}
+                        </tr>
+                    </thead>`;
+        }
+        function constructBody(data){
+            let body = "";
+            let total = 0;
+            let sr = 0;
+            console.log(data);
+            data.forEach(v => {
+                body += `<tr>
+                            <td class="td-thin"><b>${++sr}</b></td>
+                            <td class="td-thin">${v[0]}</td>
+                            <td class="td-thin">${v[1]}</td>
+                            <td class="td-thin"></td>
+                            <td class="td-thin"></td>
+                        </tr>`;
+                total += v[1];
+            });
+            body += `<tr class="border-dashed"><th class="td-thin" colspan="2">Total</th><th class="td-thin">${formatToCurrency(total.toString())}</th></tr>`;
+            return `<tbody>
+                        ${body}
+                    </tbody>`;
+        }
+    </script>
+</html>
