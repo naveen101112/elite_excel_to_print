@@ -85,12 +85,14 @@
                     var map = new Map();
                     var headings = ["S.No","DATE", "NAME OF THE PATIENT", "AGE", "SEX", "REF DOCTOR", "SCAN", " REF "];
                     jsonData.forEach(r => {
-                        if(map.has(r['REF DOCTOR'].trim())){
-                            let existArray = map.get(r['REF DOCTOR'].trim());
+                        let dr;
+                        dr = r['REF DOCTOR'] ? r['REF DOCTOR'] : 'Un-assigned';
+                        if(map.has(dr.trim())){
+                            let existArray = map.get(dr.trim());
                             existArray.push(r);
-                            map.set(r['REF DOCTOR'].trim(), existArray);
+                            map.set(dr.trim(), existArray);
                         }else{
-                            map.set(r['REF DOCTOR'].trim(), [r]);
+                            map.set(dr.trim(), [r]);
                         }
                     });
                     var innerHtml = "";

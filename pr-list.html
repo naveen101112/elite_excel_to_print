@@ -87,12 +87,14 @@
                     var map = new Map();
                     var headings = ["S No.", "DOCTOR", "TOTAL REF AMOUNT", "CASH/ONLINE", "CONTACT"];
                     jsonData.forEach(r => {
-                        if(map.has(r['PR'].trim())){
-                            let existArray = map.get(r['PR'].trim());
+                        let pr;
+                        pr = r['PR'] ? r['PR'] : 'Un-assigned';
+                        if(map.has(pr.trim())){
+                            let existArray = map.get(pr.trim());
                             existArray.push(r);
-                            map.set(r['PR'].trim(), existArray);
+                            map.set(pr.trim(), existArray);
                         }else{
-                           map.set(r['PR'].trim(), [r]);
+                           map.set(pr.trim(), [r]);
                         }
                     });
 
@@ -100,12 +102,14 @@
                     map.forEach((v,k) => {
                         let doctorMap = new Map();
                         v.forEach(r => {
-                            if(doctorMap.has(r['REF DOCTOR'].trim())){
-                                let existArray = doctorMap.get(r['REF DOCTOR'].trim());
+                            let dr;
+                            dr = r['REF DOCTOR'] ? r['REF DOCTOR'] : 'Un-assigned';
+                            if(doctorMap.has(dr.trim())){
+                                let existArray = doctorMap.get(dr.trim());
                                 existArray.push(r);
-                                doctorMap.set(r['REF DOCTOR'].trim(), existArray);
+                                doctorMap.set(dr.trim(), existArray);
                             }else{
-                                doctorMap.set(r['REF DOCTOR'].trim(), [r]);
+                                doctorMap.set(dr.trim(), [r]);
                             }
                         });
 
