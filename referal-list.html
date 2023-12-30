@@ -52,6 +52,8 @@
         <div style="display: flex;" id="upload">
             <input class="form-control" style="width: 20%;" type="file" id="fileUpload" accept=".xls,.xlsx" />
             &nbsp;&nbsp;
+            <input class="form-control" style="width: 20%;" type="input" id="sub-heading" placeholder="Enter Sub Heading" />
+            &nbsp;&nbsp;
             <button type="button" id="uploadExcel" style="width: 20%;" class="btn btn-secondary col-md-2">Generate</button>
         </div>
         <div id="content" class="content"></div>
@@ -98,7 +100,7 @@
                     var innerHtml = "";
                     map = new Map([...map.entries()].sort((a, b) => a[1].length - b[1].length));
                     map.forEach((v,k) => {
-                        let doctor='<span class="heading">Dr. Elite Diagnostics - Anakapalle</span>';
+                        let doctor=`<span class="heading">Dr. Elite Diagnostics - Anakapalle (${document.getElementById("sub-heading").value})</span>`;
                         let body = constructBody(headings, k, v);
                         if(body){
                             innerHtml+=`<div class="custom-table">${doctor}
