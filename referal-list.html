@@ -145,7 +145,7 @@
                     if(h == 'S.No'){
                         body += `<td class="td-thin"><b>${++sr}</b></td>`;
                     }else if(h == ' REF '){
-                        body += `<td class="td-thin">${formatToCurrency(r[h].toString())}</td>`;
+                        body += `<td class="td-thin">${r[h] ? formatToCurrency(r[h].toString()) : r[h]}</td>`;
                     }else{
                         body += `<td class="td-thin">${r[h]}</td>`;
                     }
