@@ -6,7 +6,8 @@ function formatToCurrency(str){
         while(temp.length>0){
             amt = temp.splice(temp.length - 2).join('') + ',' + amt;
         }
-        return '&#8377;'+amt;
+        //return '&#8377;'+amt;
+        return amt;
     }else{
         return str;
     }
