@@ -137,7 +137,7 @@
             let total = 0;
             let sr = 0;
             data.forEach(r => {
-                if(r[" REF "] ? ((dr[" REF "]+'').endsWith("P") || (dr[" REF "]+'').endsWith("M")) : false){
+                if(r[" REF "] ? ((r[" REF "]+'').endsWith("P") || (r[" REF "]+'').endsWith("M")) : false){
                     return;
                 }
                 body += '<tr>';
