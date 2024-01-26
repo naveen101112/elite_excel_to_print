@@ -33,6 +33,9 @@
                 flex-wrap: wrap;
                 justify-content: space-between;
             }
+            .b-top{
+                border-top: 2px solid !important;
+            }
             @media print {
                 .custom-table {
                     page-break-inside: avoid;
@@ -100,7 +103,7 @@
                     var innerHtml = "";
                     map = new Map([...map.entries()].sort((a, b) => a[1].length - b[1].length));
                     map.forEach((v,k) => {
-                        let doctor=`<span class="heading">Dr. Elite Diagnostics - Anakapalle (${document.getElementById("sub-heading").value})</span>`;
+                        let doctor=`<span class="heading fs-6p">Dr. Elite Diagnostics - Anakapalle (${document.getElementById("sub-heading").value})</span>`;
                         let body = constructBody(headings, k, v);
                         if(body){
                             innerHtml+=`<div class="custom-table">${doctor}
@@ -134,7 +137,7 @@
             let total = 0;
             let sr = 0;
             data.forEach(r => {
-                if(r[" REF "] ? (r[" REF "]+'').endsWith("P") : false){
+                if(r[" REF "] ? ((dr[" REF "]+'').endsWith("P") || (dr[" REF "]+'').endsWith("M")) : false){
                     return;
                 }
                 body += '<tr>';
@@ -151,7 +154,7 @@
             if(total == 0){
                 return false;
             }
-            body += `<tr class="border-dashed"><th class="td-thin" colspan="5"></th><th class="td-thin" colspan="2">${doctor} Total</th><th class="td-thin">${formatToCurrency(total.toString())}</th></tr>`;
+            body += `<tr class="border-dashed"><th class="td-thin" colspan="5"></th><th class="td-thin b-top" colspan="2">${doctor} Total</th><th class="td-thin b-top">${formatToCurrency(total.toString())}</th></tr>`;
             return `<tbody>
                         ${body}
                     </tbody>`;

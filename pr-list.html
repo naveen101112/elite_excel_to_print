@@ -119,7 +119,7 @@
                         doctorMap.forEach((dv, dk) => {
                             let doctorTotal = 0;
                             dv.forEach(dr => {
-                                if(dr[" REF "] ? (dr[" REF "]+'').endsWith("P") : false){
+                                if(dr[" REF "] ? ((dr[" REF "]+'').endsWith("P") || (dr[" REF "]+'').endsWith("M")) : false){
                                     return;
                                 }
                                 doctorTotal += isNaN(dr[" REF "]) ? 0 : parseFloat(dr[" REF "]);
